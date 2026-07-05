@@ -1,6 +1,3 @@
-Here is a clean README with no emojis, ready for a GitHub repo.
-
----
 
 # Linux Permissions Lab
 
