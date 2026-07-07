@@ -16,7 +16,7 @@ This lab helps you learn and practice Linux file permissions. You will:
 
 ```text
 permissions-lab/
-├── check.sh
+├── check.py
 ├── level-1/
 ├── level-2/
 ├── level-3/
@@ -49,15 +49,7 @@ cd permissions-lab
 
 ---
 
-### 3. Make the checker executable
-
-```bash
-chmod +x check.sh
-```
-
----
-
-### 4. Start the lab
+### 3. Start the lab
 
 Use the following commands to explore files:
 
@@ -72,7 +64,7 @@ cat level-1/file1.txt
 
 For each file:
 
-1. Open the file using `cat`
+1. Open/Read the file using `cat`
 2. Read the permission description
 3. Convert it into a numeric `chmod` value
 4. Apply the correct permissions
@@ -98,35 +90,13 @@ chmod 755 file.txt
 After completing all files:
 
 ```bash
-./check.sh
+python3 check.py
 ```
 
 The output will show:
 
 * PASS for correct permissions
 * FAIL for incorrect permissions
-
----
-
-## Troubleshooting
-
-### Permission denied when running check.sh
-
-```bash
-chmod +x check.sh
-```
-
----
-
-### File shows FAIL
-
-Use:
-
-```bash
-ls -l
-```
-
-to review current permissions and compare them with the required values.
 
 ---
 
