@@ -144,34 +144,84 @@ for path, content, _ in files:
     write_file(ROOT / path, content)
 
 # ----------------------------------------
-# Create check.sh
+# Create check.py
 # ----------------------------------------
 
-checker = """#!/bin/bash
+checker = '''#!/usr/bin/env python3
 
-echo "Checking permissions..."
-echo
+from pathlib import Path
+import stat
 
-check() {
-    file="$1"
-    expected="$2"
-    actual=$(stat -c "%a" "$file")
+ROOT = Path(__file__).parent
 
-    if [ "$actual" = "$expected" ]; then
-        echo "PASS  $file"
-    else
-        echo "FAIL  $file"
-        echo "      Expected: $expected"
-        echo "      Found:    $actual"
-    fi
-}
-
-"""
+FILES = [
+'''
 
 for path, _, permission in files:
-    checker += f'check "{path}" "{permission}"\n'
+    checker += f'    ("{path}", "{permission}"),\n'
 
-write_file(ROOT / "check.sh", checker)
+checker += '''
+
+]
+
+GREEN = "\\033[92m"
+RED = "\\033[91m"
+YELLOW = "\\033[93m"
+CYAN = "\\033[96m"
+BOLD = "\\033[1m"
+RESET = "\\033[0m"
+
+
+def get_permissions(path):
+    mode = path.stat().st_mode
+    return oct(stat.S_IMODE(mode))[2:]
+
+
+def main():
+    passed = 0
+    failed = 0
+
+    print(f"{CYAN}{'=' * 40}{RESET}")
+    print(f"{BOLD}Linux Permissions Lab Checker{RESET}")
+    print(f"{CYAN}{'=' * 40}{RESET}\\n")
+
+    for file, expected in FILES:
+        path = ROOT / file
+
+        if not path.exists():
+            print(f"{YELLOW}MISSING{RESET}: {file}")
+            failed += 1
+            continue
+
+        actual = get_permissions(path)
+
+        if actual == expected:
+            print(f"{GREEN}PASS{RESET}: {file}")
+            passed += 1
+        else:
+            print(f"{RED}FAIL{RESET}: {file}")
+            failed += 1
+
+    print()
+    print(f"{CYAN}{'=' * 40}{RESET}")
+    print(f"{BOLD}Results{RESET}")
+    print(f"{CYAN}{'=' * 40}{RESET}")
+    print(f"{GREEN}Passed:{RESET} {passed}")
+    print(f"{RED}Failed:{RESET} {failed}")
+    print()
+
+    if failed == 0:
+        print(f"{GREEN}Congratulations! All file permissions are correct.{RESET}")
+    else:
+        print(f"{RED}Some file permissions are incorrect.{RESET}")
+        print("Review the files that failed, update their permissions, and run the checker again.")
+
+
+if __name__ == "__main__":
+    main()
+'''
+
+write_file(ROOT / "check.py", checker)
 
 # ----------------------------------------
 # Set Incorrect Permissions
@@ -180,8 +230,8 @@ write_file(ROOT / "check.sh", checker)
 for path, _, _ in files:
     os.chmod(ROOT / path, 0o777)
 
-# Make checker NOT executable
-os.chmod(ROOT / "check.sh", 0o644)
+# Make checker executable 
+os.chmod(ROOT / "check.py", 0o755)
 
 # ----------------------------------------
 # Done
@@ -195,7 +245,5 @@ print("Next steps:")
 print("1. cd permissions-lab")
 print("2. Use cat to read each file.")
 print("3. Change the permissions with chmod.")
-print("4. Make the checker executable:")
-print("      chmod +x check.sh")
-print("5. Run the checker:")
-print("      ./check.sh")
+print("4. Run the checker:")
+print("      python3 check.py")
